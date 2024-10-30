@@ -9,12 +9,11 @@ from zoneinfo import ZoneInfo
 
 
 from src.models.models import User, TokenData
-#from fast_zero.schemas import TokenData
-from src.config.settings import Settings
+from src.config.settings import get_settings
 
 from src.service import userRepositoryFake
 
-settings = Settings()
+settings = get_settings()
 pwd_context = PasswordHash.recommended()
 
 
@@ -41,7 +40,7 @@ def verify_password(plain_password: str, hashed_password: str):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
-def get_current_user(
+async def get_current_user(
     token: str = Depends(oauth2_scheme),
 ):
     credentials_exception = HTTPException(
@@ -63,9 +62,11 @@ def get_current_user(
     except ExpiredSignatureError:
         raise credentials_exception
 
-    user = userRepositoryFake.getUserByIdSync(1)
+    print(token_data.username)
+    user = await userRepositoryFake.findByEmail(token_data.username) # no token ele seta email e nao username
 
     if not user:
         raise credentials_exception
 
+    print(user.email)
     return user

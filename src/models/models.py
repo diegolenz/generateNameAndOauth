@@ -42,16 +42,13 @@ class CreateUserRequestDto(BaseModel):
             default=json_default
         ).encode('utf-8')
     userName: str
-    email: EmailStr
+    email: str
     password: str
+    createdAt: str | None = None
 
-def fake_decode_token(token):
-    return User(
-        userName=token + "fakedecoded", email="john@example.com", full_name="John Doe"
-    )
 
-class TokenData():
-    userName: str | None = None
+class TokenData(BaseModel):
+    username: str | None = None
 
 
 class Token(BaseModel):

@@ -2,7 +2,6 @@ from enum import Enum
 from functools import lru_cache
 from typing import Any
 
-import yaml
 from pydantic import BaseSettings, Field
 
 
@@ -36,12 +35,16 @@ class ApiConfigSettings(BaseSettings):
 class Settings():
     uvicorn: UvicornSettings
     api_config: ApiConfigSettings
+    DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
 
-def load_from_yaml() -> Any:
-    with open("appsettings.yaml") as fp:
-        config = yaml.safe_load(fp)
-    return config
+# def load_from_yaml() -> Any:
+#     with open("appsettings.yaml") as fp:
+#         config = yaml.safe_load(fp)
+#     return config
 
 
 @lru_cache()
@@ -55,4 +58,7 @@ def get_settings() -> Settings:
     uvicorn.port =  8000
 
     settings.uvicorn = uvicorn
+    settings.ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    settings.SECRET_KEY = "your-secret-key"
+    settings.ALGORITHM = "HS256"
     return settings

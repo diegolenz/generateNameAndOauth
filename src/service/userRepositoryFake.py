@@ -4,7 +4,6 @@ import aiohttp
 from collections import namedtuple
 
 import requests
-
 from src.models.models import User, CreateUserRequestDto
 import json
 import asyncio
@@ -48,18 +47,35 @@ async def findByUser(userName: str ):
                 print(f"Erro na requisição: {response.status}")
     return None
 
-#Mock usado não consigo colocar para buscar pelo campo que não seja id - é limitado na versão free
+
+#Mock usado não consigo colocar para buscar pelo campo que não seja id (Não é escalavel) - é limitado na versão free
+async def findByEmail(email: str ):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(ApiUrlNameMock) as response:
+            if response.status == 200:
+                data = await response.json()
+
+                listU = list()
+                for item in data:
+                    u = User(item['id'], item['password'], item['email'], item['userName'], item['createdAt'])
+                    listU.append(u)
+
+
+                return next(filter(lambda us: us.email == email, listU), None)
+            else:
+                print(f"Erro na requisição: {response.status}")
+    return None
+
 async def create(user: CreateUserRequestDto ):
-    #user.createdAt = datetime.now()
-    #print(f"Nome: {user.userName}, email: {user.email}, created: {user.createdAt}, pass: {user.password}, id{user.id}")
+    user.createdAt = "2024-10-29T19:13:49.999Z";
     jsonstr1 = json.dumps(user.__dict__)
     print(jsonstr1)
-    response = requests.post(ApiUrlNameMock,  data= jsonstr1)
-    print(response)
-    if response.status_code  != 200:
-        raise Exception("Falha ao inserir usuario")
-    #async with aiohttp.ClientSession() as session:
-    #    async with session.post(ApiUrlNameMock, json = user.toJSON()) as response:
+    headers = {
+        "Content-Type": "application/json"  # Se estiver enviando JSON
+    }
+    response = requests.post(ApiUrlNameMock,  data=jsonstr1, headers=headers)
+    if response.status_code  != 201:
+        raise Exception("Falha ao inserir usuario ")
 
 
 
