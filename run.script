@@ -1,0 +1,3 @@
+
+# sleep to wait until the database is ready
+CMD python src/main.py
