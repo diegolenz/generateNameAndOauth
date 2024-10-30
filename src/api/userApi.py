@@ -1,26 +1,19 @@
 from http import HTTPStatus
-from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from src.models.models import CreateUserRequestDto
+from src.models.models import CreateUserRequestDto, User
 from src.service import userRepositoryFake
-from src.service.security import get_password_hash
+from src.service.security import get_password_hash, oauth2_scheme
+from typing import Annotated
+from src.service.security import get_current_user
+
 
 router = APIRouter(prefix='/users', tags=['users'])
-#Session = Annotated[Session, Depends(get_session)]
-#CurrentUser = Annotated[User, Depends(get_current_user)]
-
-
-
-#async def generateNames(token: str = Depends(oauth2_scheme)):
-@router.get('/get-user', status_code=HTTPStatus.OK)
-async def getUser():
-    return await userRepositoryFake.getUserById("1")
 
 
 @router.post('/', status_code=HTTPStatus.CREATED)
-async def create_user(user: CreateUserRequestDto):
+async def create_user(user: CreateUserRequestDto, current_user: Annotated[User, Depends(get_current_user)]):
     db_user = await userRepositoryFake.findByUser(user.userName)
 
     if db_user:
@@ -44,6 +37,14 @@ async def create_user(user: CreateUserRequestDto):
         userName = user.userName
     )
 
-    await userRepositoryFake.create(db_user)
-
-    return
+    try:
+        await userRepositoryFake.create(db_user)
+        return HTTPException(
+            status_code=HTTPStatus.CREATED,
+            detail='created user',
+        )
+    except:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail='create user error ',
+        )

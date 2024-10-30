@@ -25,13 +25,13 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()] ):
 
     if not user:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
+            status_code=HTTPStatus.UNAUTHORIZED,
             detail='Incorrect email or password',
         )
 
     if not verify_password(form_data.password, user.password):
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
+            status_code=HTTPStatus.UNAUTHORIZED,
             detail='Incorrect email or password',
         )
 

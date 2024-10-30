@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import uvicorn
 
 from src.api import generatorNameApi
 from src.api import userApi
@@ -21,5 +22,5 @@ app.include_router(authApi.router)
 def read_root():
     return {'message': 'Olá Mundo!'}
 
-
+uvicorn.run(app)
 
